@@ -1,228 +1,310 @@
-- ORION LIB
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"
-))()
+-- ORION UI (STABLE)
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()                                                            
+
+-- NOTIF LOAD
+OrionLib:MakeNotification({
+    Name = "Chell Hub",
+    Content = "Loading Hub...",
+    Image = "rbxassetid://4483345998",
+    Time = 2
+})
 
 -- WINDOW
 local Window = OrionLib:MakeWindow({
     Name = "Chell Hub",
     HidePremium = false,
     SaveConfig = false,
-    IntroEnabled = true,
-    IntroText = "Loading Hub..."
+    ConfigFolder = "ChellHub"
 })
 
 -- SERVICES
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local LP = Players.LocalPlayer
+local Char, Hum
 
--- NOTIF LOAD
-OrionLib:MakeNotification({
-    Name = "Hub Load",
-    Content = "Loading...",
-    Time = 2
-})
+local function refreshChar()
+    Char = LP.Character or LP.CharacterAdded:Wait()
+    Hum = Char:WaitForChild("Humanoid")
+end
 
--- =======================
--- INFO TAB (PALING ATAS)
--- =======================
+refreshChar()
+LP.CharacterAdded:Connect(refreshChar)
+
+-- ================= TAB INFORMASI =================
 local InfoTab = Window:MakeTab({
     Name = "Information",
-    Icon = "rbxassetid://4483345998",
+    Icon = "rbxassetid:              
     PremiumOnly = false
 })
 
-InfoTab:AddSection({Name = "Hub Info"})
+InfoTab:AddParagraph("Hub Name", "Chell Hub")
+InfoTab:AddParagraph("Creator", "Ell")
+InfoTab:AddParagraph("Status", "FREE")
+InfoTab:AddParagraph("User", LP.Name)
+InfoTab:AddParagraph("UserId", tostring(LP.UserId))
+InfoTab:AddParagraph("Executor", identifyexecutor and identifyexecutor() or "Unknown")
 
-InfoTab:AddParagraph("Creator","Ell")
-InfoTab:AddParagraph("Status","Free")
-InfoTab:AddParagraph("User",LocalPlayer.Name)
-InfoTab:AddParagraph("UserId",tostring(LocalPlayer.UserId))
+-- AUTO COPY LINK
+local function copy(txt)
+    if setclipboard then
+        setclipboard(txt)
+    end
+    OrionLib:MakeNotification({
+        Name = "Copied",
+        Content = txt,
+        Time = 2
+    })
+end
 
-InfoTab:AddSection({Name = "Links"})
-
--- DISCORD LINK
 InfoTab:AddButton({
-    Name = "Copy Discord Link",
+    Name = "Copy Discord",
     Callback = function()
-        setclipboard("https://discord.gg/N9B9QmuN9")
-        OrionLib:MakeNotification({
-            Name = "Copied",
-            Content = "Discord link copied!",
-            Time = 2
-        })
+        copy("https://discord.gg/N9B9QmuN9")
     end
 })
 
--- WHATSAPP LINK
 InfoTab:AddButton({
     Name = "Copy WhatsApp Channel",
     Callback = function()
-        setclipboard("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S")
-        OrionLib:MakeNotification({
-            Name = "Copied",
-            Content = "WhatsApp link copied!",
-            Time = 2
-        })
+        copy("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S                        
     end
 })
 
--- GITHUB LINK
 InfoTab:AddButton({
     Name = "Copy GitHub",
     Callback = function()
-        setclipboard("https://github.com/USERNAME")
-        OrionLib:MakeNotification({
-            Name = "Copied",
-            Content = "GitHub link copied!",
-            Time = 2
-        })
+        copy("")
     end
 })
 
--- =======================
--- MAIN TAB (CONTOH)
--- =======================
+InfoTab:AddParagraph("Community", "Discord • WhatsApp • GitHub")
+
+-- ================= TAB MAIN =================
 local MainTab = Window:MakeTab({
     Name = "Main",
-    Icon = "rbxassetid://4483345998",
+    Icon = "rbxassetid:              
     PremiumOnly = false
 })
 
--- SERVICES
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+-- ===== SPEED =====
+local speedValue = 16
+local speedEnabled = false
 
--- VARIABLE
-local SpeedEnabled = false
-local JumpEnabled = false
-local ESPEnabled = false
+MainTab:AddToggle({
+    Name = "Speed Enable",
+    Default = false,
+    Callback = function(v)
+        speedEnabled = v
+    end
+})
 
-local SpeedValue = 16
-local JumpValue = 50
+MainTab:AddButton({
+    Name = "Speed 30",
+    Callback = function()
+        speedValue = 30
+    end
+})
 
--- LOOP APPLY SPEED & JUMP (ANTI RESET)
-task.spawn(function()
-    while task.wait(0.15) do
-        local char = LocalPlayer.Character
-        if char and char:FindFirstChild("Humanoid") then
-            local hum = char.Humanoid
+MainTab:AddButton({
+    Name = "Speed 60",
+    Callback = function()
+        speedValue = 60
+    end
+})
 
-            if SpeedEnabled then
-                hum.WalkSpeed = SpeedValue
+MainTab:AddButton({
+    Name = "Speed 100",
+    Callback = function()
+        speedValue = 100
+    end
+})
+
+RunService.RenderStepped:Connect(function()
+    if speedEnabled and Hum then
+        Hum.WalkSpeed = speedValue
+    end
+end)
+
+-- ===== JUMP =====
+local jumpValue = 50
+local jumpEnabled = false
+
+MainTab:AddToggle({
+    Name = "Jump Enable",
+    Default = false,
+    Callback = function(v)
+        jumpEnabled = v
+    end
+})
+
+MainTab:AddButton({
+    Name = "Jump 80",
+    Callback = function()
+        jumpValue = 80
+    end
+})
+
+MainTab:AddButton({
+    Name = "Jump 120",
+    Callback = function()
+        jumpValue = 120
+    end
+})
+
+MainTab:AddButton({
+    Name = "Jump 200",
+    Callback = function()
+        jumpValue = 200
+    end
+})
+
+RunService.RenderStepped:Connect(function()
+    if jumpEnabled and Hum then
+        Hum.JumpPower = jumpValue
+    end
+end)
+
+-- ===== ESP (HIGHLIGHT BODY) =====
+local espEnabled = false
+local espCache = {}
+
+local function addESP(plr)
+    if plr == LP then return end
+    if espCache[plr] then return end
+
+    local function apply(char)
+        local h = Instance.new("Highlight")
+        h.FillColor = Color3.fromRGB(255,0,0)
+        h.OutlineColor = Color3.fromRGB(255,255,255)
+        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        h.Parent = char
+        espCache[plr] = h
+    end
+
+    if plr.Character then
+        apply(plr.Character)
+    end
+
+    plr.CharacterAdded:Connect(apply)
+end
+
+local function removeESP()
+    for _,h in pairs(espCache) do
+        if h then h:Destroy() end
+    end
+    espCache = {}
+end
+
+MainTab:AddToggle({
+    Name = "ESP Player",
+    Default = false,
+    Callback = function(v)
+        espEnabled = v
+        if v then
+            for _,p in pairs(Players:GetPlayers()) do
+                addESP(p)
             end
+            Players.PlayerAdded:Connect(addESP)
+        else
+            end
+    end
+})
 
-            if JumpEnabled then
-                hum.JumpPower = JumpValue
+-- ===== FLY + NOCLIP =====
+local flyEnabled = false
+local noclipEnabled = false
+local bv, bg
+local flySpeed = 60
+
+MainTab:AddToggle({
+    Name = "Fly",
+    Default = false,
+    Callback = function(v)
+        flyEnabled = v
+        if v then
+            if Char and Char:FindFirstChild("HumanoidRootPart") then
+                bv = Instance.new("BodyVelocity")
+                bv.MaxForce = Vector3.new(1, 1, 1) * math.huge
+                bv.Velocity = Vector3.zero
+                bv.Parent = Char.HumanoidRootPart
+
+                bg = Instance.new("BodyGyro")
+                bg.MaxTorque = Vector3.new(1, 1, 1) * math.huge
+                bg.P = 10000
+                bg.D = 1000
+                bg.Parent = Char.HumanoidRootPart
+            end
+        else
+            if bv then bv:Destroy() end
+            if bg then bg:Destroy() end
+        end
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Callback = function(v)
+        noclipEnabled = v
+    end
+})
+
+RunService.Stepped:Connect(function()
+    if noclipEnabled and Char then
+        for _,p in pairs(Char:GetDescendants()) do
+            if p:IsA("BasePart") then
+                p.CanCollide = false
             end
         end
     end
 end)
 
--- ESP FUNCTION
-local function ToggleESP(state)
-    for _,plr in pairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer then
-            local char = plr.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                if state then
-                    if not char:FindFirstChild("ESP_Box") then
-                        local box = Instance.new("BoxHandleAdornment")
-                        box.Name = "ESP_Box"
-                        box.Adornee = char
-                        box.AlwaysOnTop = true
-                        box.ZIndex = 10
-                        box.Size = char:GetExtentsSize()
-                        box.Transparency = 0.5
-                        box.Color3 = Color3.fromRGB(255, 0, 0)
-                        box.Parent = char
-                    end
-                else
-                    if char:FindFirstChild("ESP_Box") then
-                        char.ESP_Box:Destroy()
-                    end
-                end
-            end
+RunService.RenderStepped:Connect(function()
+    if flyEnabled and Char and Char:FindFirstChild("HumanoidRootPart") then
+        local cam = workspace.CurrentCamera
+        local dir = Vector3.zero
+
+        if UIS:IsKeyDown(Enum.KeyCode.W) then
+            dir += cam.CFrame.LookVector
+        end
+
+        if UIS:IsKeyDown(Enum.KeyCode.S) then
+            dir -= cam.CFrame.LookVector
+        end
+
+        if UIS:IsKeyDown(Enum.KeyCode.A) then
+            dir -= cam.CFrame.RightVector
+        end
+
+        if UIS:IsKeyDown(Enum.KeyCode.D) then
+            dir += cam.CFrame.RightVector
+        end
+
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then
+            dir += Vector3.new(0,1,0)
+        end
+
+        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
+            dir -= Vector3.new(0,1,0)
+        end
+
+        if bv then
+            bv.Velocity = dir * flySpeed
+        end
+
+        if bg then
+            bg.CFrame = cam.CFrame
         end
     end
-end
+end)
 
--- =======================
--- MAIN TAB
--- =======================
-local MainTab = Window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-MainTab:AddSection({ Name = "Movement" })
-
--- SPEED TOGGLE
-MainTab:AddToggle({
-    Name = "Speed",
-    Default = false,
-    Callback = function(v)
-        SpeedEnabled = v
-        if not v then
-            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-            if hum then hum.WalkSpeed = 16 end
-        end
-    end
-})
-
--- SPEED SLIDER
-MainTab:AddSlider({
-    Name = "Speed Value",
-    Min = 16,
-    Max = 200,
-    Default = 16,
-    Increment = 1,
-    Callback = function(v)
-        SpeedValue = v
-    end
-})
-
--- JUMP TOGGLE
-MainTab:AddToggle({
-    Name = "Jump",
-    Default = false,
-    Callback = function(v)
-        JumpEnabled = v
-        if not v then
-            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-            if hum then hum.JumpPower = 50 end
-        end
-    end
-})
-
--- JUMP SLIDER
-MainTab:AddSlider({
-    Name = "Jump Value",
-    Min = 50,
-    Max = 300,
-    Default = 50,
-    Increment = 5,
-    Callback = function(v)
-        JumpValue = v
-    end
-})
-
-MainTab:AddSection({ Name = "Visual" })
-
--- ESP TOGGLE
-MainTab:AddToggle({
-    Name = "ESP Player",
-    Default = false,
-    Callback = function(v)
-        ESPEnabled = v
-        ToggleESP(v)
-    end
-})
-
--- FINAL NOTIF
+-- NOTIF READY
 OrionLib:MakeNotification({
-    Name = "Hub Ready",
-    Content = "Ell Hub Loaded Successfully",
+    Name = "Chell Hub",
+    Content = "Hub Ready!",
+    Image = "rbxassetid://4483345998",
     Time = 3
 })
 

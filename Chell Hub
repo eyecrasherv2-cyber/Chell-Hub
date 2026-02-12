@@ -71,7 +71,7 @@ InfoTab:AddButton({
 InfoTab:AddButton({
     Name = "Copy GitHub",
     Callback = function()
-        copy("Loadstring(game:HttpGet("https://raw.githubusercontent.com/eyecrasherv2-cyber/Chell-Hub/refs/heads/main/Chell%20Hub"))()")
+        copy("https://raw.githubusercontent.com/eyecrasherv2-cyber/Chell-Hub/refs/heads/main/Chell%20Hub")
     end
 })
 

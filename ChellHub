@@ -62,9 +62,9 @@ InfoTab:AddButton({
 })
 
 InfoTab:AddButton({
-    Name = "Copy WhatsApp Channel",
+    Name = "Copy GitHub",
     Callback = function()
-        copy("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S")
+        copy('loadstring(game:HttpGet("https://raw.githubusercontent.com/eyecrasherv2-cyber/Chell-Hub/main/ChellHub.lua"))()')
     end
 })
 

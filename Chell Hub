@@ -1,0 +1,229 @@
+- ORION LIB
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"
+))()
+
+-- WINDOW
+local Window = OrionLib:MakeWindow({
+    Name = "Chell Hub",
+    HidePremium = false,
+    SaveConfig = false,
+    IntroEnabled = true,
+    IntroText = "Loading Hub..."
+})
+
+-- SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- NOTIF LOAD
+OrionLib:MakeNotification({
+    Name = "Hub Load",
+    Content = "Loading...",
+    Time = 2
+})
+
+-- =======================
+-- INFO TAB (PALING ATAS)
+-- =======================
+local InfoTab = Window:MakeTab({
+    Name = "Information",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+InfoTab:AddSection({Name = "Hub Info"})
+
+InfoTab:AddParagraph("Creator","Ell")
+InfoTab:AddParagraph("Status","Free")
+InfoTab:AddParagraph("User",LocalPlayer.Name)
+InfoTab:AddParagraph("UserId",tostring(LocalPlayer.UserId))
+
+InfoTab:AddSection({Name = "Links"})
+
+-- DISCORD LINK
+InfoTab:AddButton({
+    Name = "Copy Discord Link",
+    Callback = function()
+        setclipboard("https://discord.gg/N9B9QmuN9")
+        OrionLib:MakeNotification({
+            Name = "Copied",
+            Content = "Discord link copied!",
+            Time = 2
+        })
+    end
+})
+
+-- WHATSAPP LINK
+InfoTab:AddButton({
+    Name = "Copy WhatsApp Channel",
+    Callback = function()
+        setclipboard("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S")
+        OrionLib:MakeNotification({
+            Name = "Copied",
+            Content = "WhatsApp link copied!",
+            Time = 2
+        })
+    end
+})
+
+-- GITHUB LINK
+InfoTab:AddButton({
+    Name = "Copy GitHub",
+    Callback = function()
+        setclipboard("https://github.com/USERNAME")
+        OrionLib:MakeNotification({
+            Name = "Copied",
+            Content = "GitHub link copied!",
+            Time = 2
+        })
+    end
+})
+
+-- =======================
+-- MAIN TAB (CONTOH)
+-- =======================
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+-- SERVICES
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- VARIABLE
+local SpeedEnabled = false
+local JumpEnabled = false
+local ESPEnabled = false
+
+local SpeedValue = 16
+local JumpValue = 50
+
+-- LOOP APPLY SPEED & JUMP (ANTI RESET)
+task.spawn(function()
+    while task.wait(0.15) do
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            local hum = char.Humanoid
+
+            if SpeedEnabled then
+                hum.WalkSpeed = SpeedValue
+            end
+
+            if JumpEnabled then
+                hum.JumpPower = JumpValue
+            end
+        end
+    end
+end)
+
+-- ESP FUNCTION
+local function ToggleESP(state)
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer then
+            local char = plr.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                if state then
+                    if not char:FindFirstChild("ESP_Box") then
+                        local box = Instance.new("BoxHandleAdornment")
+                        box.Name = "ESP_Box"
+                        box.Adornee = char
+                        box.AlwaysOnTop = true
+                        box.ZIndex = 10
+                        box.Size = char:GetExtentsSize()
+                        box.Transparency = 0.5
+                        box.Color3 = Color3.fromRGB(255, 0, 0)
+                        box.Parent = char
+                    end
+                else
+                    if char:FindFirstChild("ESP_Box") then
+                        char.ESP_Box:Destroy()
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- =======================
+-- MAIN TAB
+-- =======================
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+MainTab:AddSection({ Name = "Movement" })
+
+-- SPEED TOGGLE
+MainTab:AddToggle({
+    Name = "Speed",
+    Default = false,
+    Callback = function(v)
+        SpeedEnabled = v
+        if not v then
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.WalkSpeed = 16 end
+        end
+    end
+})
+
+-- SPEED SLIDER
+MainTab:AddSlider({
+    Name = "Speed Value",
+    Min = 16,
+    Max = 200,
+    Default = 16,
+    Increment = 1,
+    Callback = function(v)
+        SpeedValue = v
+    end
+})
+
+-- JUMP TOGGLE
+MainTab:AddToggle({
+    Name = "Jump",
+    Default = false,
+    Callback = function(v)
+        JumpEnabled = v
+        if not v then
+            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+            if hum then hum.JumpPower = 50 end
+        end
+    end
+})
+
+-- JUMP SLIDER
+MainTab:AddSlider({
+    Name = "Jump Value",
+    Min = 50,
+    Max = 300,
+    Default = 50,
+    Increment = 5,
+    Callback = function(v)
+        JumpValue = v
+    end
+})
+
+MainTab:AddSection({ Name = "Visual" })
+
+-- ESP TOGGLE
+MainTab:AddToggle({
+    Name = "ESP Player",
+    Default = false,
+    Callback = function(v)
+        ESPEnabled = v
+        ToggleESP(v)
+    end
+})
+
+-- FINAL NOTIF
+OrionLib:MakeNotification({
+    Name = "Hub Ready",
+    Content = "Ell Hub Loaded Successfully",
+    Time = 3
+})
+
+OrionLib:Init()

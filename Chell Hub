@@ -1,5 +1,5 @@
--- ORION UI (STABLE)
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()                                                            
+-- ORION UI (STABLE FIX)
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
 -- NOTIF LOAD
 OrionLib:MakeNotification({
@@ -28,14 +28,13 @@ local function refreshChar()
     Char = LP.Character or LP.CharacterAdded:Wait()
     Hum = Char:WaitForChild("Humanoid")
 end
-
 refreshChar()
 LP.CharacterAdded:Connect(refreshChar)
 
--- ================= TAB INFORMASI =================
+-- ================= TAB INFORMATION =================
 local InfoTab = Window:MakeTab({
     Name = "Information",
-    Icon = "rbxassetid:              
+    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
@@ -46,11 +45,8 @@ InfoTab:AddParagraph("User", LP.Name)
 InfoTab:AddParagraph("UserId", tostring(LP.UserId))
 InfoTab:AddParagraph("Executor", identifyexecutor and identifyexecutor() or "Unknown")
 
--- AUTO COPY LINK
 local function copy(txt)
-    if setclipboard then
-        setclipboard(txt)
-    end
+    if setclipboard then setclipboard(txt) end
     OrionLib:MakeNotification({
         Name = "Copied",
         Content = txt,
@@ -68,7 +64,7 @@ InfoTab:AddButton({
 InfoTab:AddButton({
     Name = "Copy WhatsApp Channel",
     Callback = function()
-        copy("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S                        
+        copy("https://whatsapp.com/channel/0029Vb5d1qULo4hl3SwB521S")
     end
 })
 
@@ -79,12 +75,10 @@ InfoTab:AddButton({
     end
 })
 
-InfoTab:AddParagraph("Community", "Discord • WhatsApp • GitHub")
-
 -- ================= TAB MAIN =================
 local MainTab = Window:MakeTab({
     Name = "Main",
-    Icon = "rbxassetid:              
+    Icon = "rbxassetid://4483345998",
     PremiumOnly = false
 })
 
@@ -93,31 +87,22 @@ local speedValue = 16
 local speedEnabled = false
 
 MainTab:AddToggle({
-    Name = "Speed Enable",
+    Name = "Enable Speed",
     Default = false,
     Callback = function(v)
         speedEnabled = v
+        if not v and Hum then Hum.WalkSpeed = 16 end
     end
 })
 
-MainTab:AddButton({
-    Name = "Speed 30",
-    Callback = function()
-        speedValue = 30
-    end
-})
-
-MainTab:AddButton({
-    Name = "Speed 60",
-    Callback = function()
-        speedValue = 60
-    end
-})
-
-MainTab:AddButton({
-    Name = "Speed 100",
-    Callback = function()
-        speedValue = 100
+MainTab:AddSlider({
+    Name = "Speed Value",
+    Min = 16,
+    Max = 150,
+    Default = 30,
+    Increment = 1,
+    Callback = function(v)
+        speedValue = v
     end
 })
 
@@ -132,31 +117,22 @@ local jumpValue = 50
 local jumpEnabled = false
 
 MainTab:AddToggle({
-    Name = "Jump Enable",
+    Name = "Enable Jump",
     Default = false,
     Callback = function(v)
         jumpEnabled = v
+        if not v and Hum then Hum.JumpPower = 50 end
     end
 })
 
-MainTab:AddButton({
-    Name = "Jump 80",
-    Callback = function()
-        jumpValue = 80
-    end
-})
-
-MainTab:AddButton({
-    Name = "Jump 120",
-    Callback = function()
-        jumpValue = 120
-    end
-})
-
-MainTab:AddButton({
-    Name = "Jump 200",
-    Callback = function()
-        jumpValue = 200
+MainTab:AddSlider({
+    Name = "Jump Power",
+    Min = 50,
+    Max = 250,
+    Default = 100,
+    Increment = 5,
+    Callback = function(v)
+        jumpValue = v
     end
 })
 
@@ -166,27 +142,23 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ===== ESP (HIGHLIGHT BODY) =====
-local espEnabled = false
+-- ===== ESP PLAYER (HIGHLIGHT BODY) =====
 local espCache = {}
 
 local function addESP(plr)
-    if plr == LP then return end
-    if espCache[plr] then return end
+    if plr == LP or espCache[plr] then return end
 
     local function apply(char)
+        if espCache[plr] then espCache[plr]:Destroy() end
         local h = Instance.new("Highlight")
-        h.FillColor = Color3.fromRGB(255,0,0)
-        h.OutlineColor = Color3.fromRGB(255,255,255)
+        h.FillColor = Color3.fromRGB(255, 0, 0)
+        h.OutlineColor = Color3.fromRGB(255, 255, 255)
         h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
         h.Parent = char
         espCache[plr] = h
     end
 
-    if plr.Character then
-        apply(plr.Character)
-    end
-
+    if plr.Character then apply(plr.Character) end
     plr.CharacterAdded:Connect(apply)
 end
 
@@ -201,14 +173,14 @@ MainTab:AddToggle({
     Name = "ESP Player",
     Default = false,
     Callback = function(v)
-        espEnabled = v
         if v then
             for _,p in pairs(Players:GetPlayers()) do
                 addESP(p)
             end
             Players.PlayerAdded:Connect(addESP)
         else
-            end
+            removeESP()
+        end
     end
 })
 
@@ -223,23 +195,32 @@ MainTab:AddToggle({
     Default = false,
     Callback = function(v)
         flyEnabled = v
-        if v then
-            if Char and Char:FindFirstChild("HumanoidRootPart") then
-                bv = Instance.new("BodyVelocity")
-                bv.MaxForce = Vector3.new(1, 1, 1) * math.huge
-                bv.Velocity = Vector3.zero
-                bv.Parent = Char.HumanoidRootPart
+        if v and Char then
+            local hrp = Char:WaitForChild("HumanoidRootPart")
 
-                bg = Instance.new("BodyGyro")
-                bg.MaxTorque = Vector3.new(1, 1, 1) * math.huge
-                bg.P = 10000
-                bg.D = 1000
-                bg.Parent = Char.HumanoidRootPart
-            end
+            bv = Instance.new("BodyVelocity")
+            bv.MaxForce = Vector3.new(1e9,1e9,1e9)
+            bv.Parent = hrp
+
+            bg = Instance.new("BodyGyro")
+            bg.MaxTorque = Vector3.new(1e9,1e9,1e9)
+            bg.P = 10000
+            bg.Parent = hrp
         else
             if bv then bv:Destroy() end
             if bg then bg:Destroy() end
         end
+    end
+})
+
+MainTab:AddSlider({
+    Name = "Fly Speed",
+    Min = 20,
+    Max = 200,
+    Default = 60,
+    Increment = 5,
+    Callback = function(v)
+        flySpeed = v
     end
 })
 
@@ -252,55 +233,33 @@ MainTab:AddToggle({
 })
 
 RunService.Stepped:Connect(function()
-    if noclipEnabled and Char then
+    if Char then
         for _,p in pairs(Char:GetDescendants()) do
             if p:IsA("BasePart") then
-                p.CanCollide = false
+                p.CanCollide = not noclipEnabled
             end
         end
     end
 end)
 
 RunService.RenderStepped:Connect(function()
-    if flyEnabled and Char and Char:FindFirstChild("HumanoidRootPart") then
+    if flyEnabled and bv and bg then
         local cam = workspace.CurrentCamera
         local dir = Vector3.zero
 
-        if UIS:IsKeyDown(Enum.KeyCode.W) then
-            dir += cam.CFrame.LookVector
-        end
+        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir -= Vector3.new(0,1,0) end
 
-        if UIS:IsKeyDown(Enum.KeyCode.S) then
-            dir -= cam.CFrame.LookVector
-        end
-
-        if UIS:IsKeyDown(Enum.KeyCode.A) then
-            dir -= cam.CFrame.RightVector
-        end
-
-        if UIS:IsKeyDown(Enum.KeyCode.D) then
-            dir += cam.CFrame.RightVector
-        end
-
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then
-            dir += Vector3.new(0,1,0)
-        end
-
-        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
-            dir -= Vector3.new(0,1,0)
-        end
-
-        if bv then
-            bv.Velocity = dir * flySpeed
-        end
-
-        if bg then
-            bg.CFrame = cam.CFrame
-        end
+        bv.Velocity = dir * flySpeed
+        bg.CFrame = cam.CFrame
     end
 end)
 
--- NOTIF READY
+-- READY
 OrionLib:MakeNotification({
     Name = "Chell Hub",
     Content = "Hub Ready!",

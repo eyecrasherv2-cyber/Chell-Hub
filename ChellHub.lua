@@ -60,21 +60,6 @@ InfoTab:AddButton({
         copy("https://discord.gg/N9B9QmuN9")
     end
 })
-
-InfoTab:AddButton({
-    Name = "Copy GitHub",
-    Callback = function()
-        copy('loadstring(game:HttpGet("https://raw.githubusercontent.com/eyecrasherv2-cyber/Chell-Hub/main/ChellHub.lua"))()')
-    end
-})
-
-InfoTab:AddButton({
-    Name = "Copy GitHub",
-    Callback = function()
-        copy("https://raw.githubusercontent.com/eyecrasherv2-cyber/Chell-Hub/refs/heads/main/Chell%20Hub")
-    end
-})
-
 -- ================= TAB MAIN =================
 local MainTab = Window:MakeTab({
     Name = "Main",

@@ -1,255 +1,229 @@
--- ORION UI (STABLE FIX)
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
+--========================--
+--   CHELL HUB | ORION   --
+--========================--
 
--- NOTIF LOAD
-OrionLib:MakeNotification({
-    Name = "Chell Hub",
-    Content = "Loading Hub...",
-    Image = "rbxassetid://4483345998",
-    Time = 2
-})
-
--- WINDOW
-local Window = OrionLib:MakeWindow({
-    Name = "Chell Hub",
-    HidePremium = false,
-    SaveConfig = false,
-    ConfigFolder = "ChellHub"
-})
-
--- SERVICES
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
-local LP = Players.LocalPlayer
-local Char, Hum
+local LocalPlayer = Players.LocalPlayer
 
-local function refreshChar()
-    Char = LP.Character or LP.CharacterAdded:Wait()
-    Hum = Char:WaitForChild("Humanoid")
-end
-refreshChar()
-LP.CharacterAdded:Connect(refreshChar)
+-- ORION UI
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
 
--- ================= TAB INFORMATION =================
-local InfoTab = Window:MakeTab({
-    Name = "Information",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
-InfoTab:AddParagraph("Hub Name", "Chell Hub")
-InfoTab:AddParagraph("Creator", "Ell")
-InfoTab:AddParagraph("Status", "FREE")
-InfoTab:AddParagraph("User", LP.Name)
-InfoTab:AddParagraph("UserId", tostring(LP.UserId))
-InfoTab:AddParagraph("Executor", identifyexecutor and identifyexecutor() or "Unknown")
-
-local function copy(txt)
-    if setclipboard then setclipboard(txt) end
-    OrionLib:MakeNotification({
-        Name = "Copied",
-        Content = txt,
-        Time = 2
-    })
-end
-
-InfoTab:AddButton({
-    Name = "Copy Discord",
-    Callback = function()
-        copy("https://discord.gg/N9B9QmuN9")
-    end
-})
--- ================= TAB MAIN =================
-local MainTab = Window:MakeTab({
-    Name = "Main",
-    Icon = "rbxassetid://4483345998",
-    PremiumOnly = false
-})
-
--- ===== SPEED =====
-local speedValue = 16
-local speedEnabled = false
-
-MainTab:AddToggle({
-    Name = "Enable Speed",
-    Default = false,
-    Callback = function(v)
-        speedEnabled = v
-        if not v and Hum then Hum.WalkSpeed = 16 end
-    end
-})
-
-MainTab:AddSlider({
-    Name = "Speed Value",
-    Min = 16,
-    Max = 150,
-    Default = 30,
-    Increment = 1,
-    Callback = function(v)
-        speedValue = v
-    end
-})
-
-RunService.RenderStepped:Connect(function()
-    if speedEnabled and Hum then
-        Hum.WalkSpeed = speedValue
-    end
-end)
-
--- ===== JUMP =====
-local jumpValue = 50
-local jumpEnabled = false
-
-MainTab:AddToggle({
-    Name = "Enable Jump",
-    Default = false,
-    Callback = function(v)
-        jumpEnabled = v
-        if not v and Hum then Hum.JumpPower = 50 end
-    end
-})
-
-MainTab:AddSlider({
-    Name = "Jump Power",
-    Min = 50,
-    Max = 250,
-    Default = 100,
-    Increment = 5,
-    Callback = function(v)
-        jumpValue = v
-    end
-})
-
-RunService.RenderStepped:Connect(function()
-    if jumpEnabled and Hum then
-        Hum.JumpPower = jumpValue
-    end
-end)
-
--- ===== ESP PLAYER (HIGHLIGHT BODY) =====
-local espCache = {}
-
-local function addESP(plr)
-    if plr == LP or espCache[plr] then return end
-
-    local function apply(char)
-        if espCache[plr] then espCache[plr]:Destroy() end
-        local h = Instance.new("Highlight")
-        h.FillColor = Color3.fromRGB(255, 0, 0)
-        h.OutlineColor = Color3.fromRGB(255, 255, 255)
-        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        h.Parent = char
-        espCache[plr] = h
-    end
-
-    if plr.Character then apply(plr.Character) end
-    plr.CharacterAdded:Connect(apply)
-end
-
-local function removeESP()
-    for _,h in pairs(espCache) do
-        if h then h:Destroy() end
-    end
-    espCache = {}
-end
-
-MainTab:AddToggle({
-    Name = "ESP Player",
-    Default = false,
-    Callback = function(v)
-        if v then
-            for _,p in pairs(Players:GetPlayers()) do
-                addESP(p)
-            end
-            Players.PlayerAdded:Connect(addESP)
-        else
-            removeESP()
-        end
-    end
-})
-
--- ===== FLY + NOCLIP =====
-local flyEnabled = false
-local noclipEnabled = false
-local bv, bg
-local flySpeed = 60
-
-MainTab:AddToggle({
-    Name = "Fly",
-    Default = false,
-    Callback = function(v)
-        flyEnabled = v
-        if v and Char then
-            local hrp = Char:WaitForChild("HumanoidRootPart")
-
-            bv = Instance.new("BodyVelocity")
-            bv.MaxForce = Vector3.new(1e9,1e9,1e9)
-            bv.Parent = hrp
-
-            bg = Instance.new("BodyGyro")
-            bg.MaxTorque = Vector3.new(1e9,1e9,1e9)
-            bg.P = 10000
-            bg.Parent = hrp
-        else
-            if bv then bv:Destroy() end
-            if bg then bg:Destroy() end
-        end
-    end
-})
-
-MainTab:AddSlider({
-    Name = "Fly Speed",
-    Min = 20,
-    Max = 200,
-    Default = 60,
-    Increment = 5,
-    Callback = function(v)
-        flySpeed = v
-    end
-})
-
-MainTab:AddToggle({
-    Name = "Noclip",
-    Default = false,
-    Callback = function(v)
-        noclipEnabled = v
-    end
-})
-
-RunService.Stepped:Connect(function()
-    if Char then
-        for _,p in pairs(Char:GetDescendants()) do
-            if p:IsA("BasePart") then
-                p.CanCollide = not noclipEnabled
-            end
-        end
-    end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if flyEnabled and bv and bg then
-        local cam = workspace.CurrentCamera
-        local dir = Vector3.zero
-
-        if UIS:IsKeyDown(Enum.KeyCode.W) then dir += cam.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then dir -= cam.CFrame.LookVector end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then dir -= cam.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then dir += cam.CFrame.RightVector end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then dir += Vector3.new(0,1,0) end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then dir -= Vector3.new(0,1,0) end
-
-        bv.Velocity = dir * flySpeed
-        bg.CFrame = cam.CFrame
-    end
-end)
-
--- READY
 OrionLib:MakeNotification({
-    Name = "Chell Hub",
-    Content = "Hub Ready!",
-    Image = "rbxassetid://4483345998",
-    Time = 3
+	Name = "Chell Hub",
+	Content = "Loading...",
+	Image = "rbxassetid://4483345998",
+	Time = 3
+})
+
+local Window = OrionLib:MakeWindow({
+	Name = "Chell Hub",
+	HidePremium = false,
+	SaveConfig = false
+})
+
+--========================--
+-- TABS
+--========================--
+local InfoTab = Window:MakeTab({Name="Info", Icon="rbxassetid://4483345998"})
+local MainTab = Window:MakeTab({Name="Main", Icon="rbxassetid://4483345998"})
+local VisualTab = Window:MakeTab({Name="Visuals", Icon="rbxassetid://4483345998"})
+local MoveTab = Window:MakeTab({Name="Movement", Icon="rbxassetid://4483345998"})
+local ToolsTab = Window:MakeTab({Name="Tools", Icon="rbxassetid://4483345998"})
+local MiscTab = Window:MakeTab({Name="Misc", Icon="rbxassetid://4483345998"})
+
+--========================--
+-- INFO
+--========================--
+local player = game.Players.LocalPlayer
+
+InfoTab:AddParagraph("Nama Hub", "Chell Hub")
+
+InfoTab:AddParagraph("CR", "Eye")
+
+InfoTab:AddParagraph("Versi", "v1.0")
+
+InfoTab:AddParagraph("Type", "Universal")
+
+InfoTab:AddParagraph("User", player.Name)
+
+InfoTab:AddParagraph("User ID", tostring(player.UserId))
+
+--========================--
+-- MAIN (TELEPORT / BRING)
+--========================--
+local targetName = ""
+
+MainTab:AddTextbox({
+	Name = "Nama Player",
+	Default = "",
+	TextDisappear = false,
+	Callback = function(v)
+		targetName = v
+	end
+})
+
+MainTab:AddButton({
+	Name = "Teleport To Player",
+	Callback = function()
+		local target = Players:FindFirstChild(targetName)
+		if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+			LocalPlayer.Character.HumanoidRootPart.CFrame =
+			target.Character.HumanoidRootPart.CFrame
+		end
+	end
+})
+
+MainTab:AddButton({
+	Name = "Bring Player",
+	Callback = function()
+		local target = Players:FindFirstChild(targetName)
+		if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+			target.Character.HumanoidRootPart.CFrame =
+			LocalPlayer.Character.HumanoidRootPart.CFrame
+		end
+	end
+})
+
+--========================--
+-- VISUALS (ESP HIGHLIGHT)
+--========================--
+local espEnabled = false
+local highlights = {}
+
+local function clearESP()
+	for _,h in pairs(highlights) do
+		if h then h:Destroy() end
+	end
+	highlights = {}
+end
+
+local function applyESP()
+	clearESP()
+	for _,plr in pairs(Players:GetPlayers()) do
+		if plr ~= LocalPlayer and plr.Character then
+			local hl = Instance.new("Highlight")
+			hl.Parent = plr.Character
+			hl.FillColor = Color3.fromRGB(255,0,0)
+			hl.OutlineColor = Color3.fromRGB(255,255,255)
+			hl.FillTransparency = 0.5
+			table.insert(highlights, hl)
+		end
+	end
+end
+
+VisualTab:AddToggle({
+	Name = "ESP Highlight",
+	Default = false,
+	Callback = function(v)
+		espEnabled = v
+		if v then
+			applyESP()
+		else
+			clearESP()
+		end
+	end
+})
+
+Players.PlayerAdded:Connect(function(plr)
+	plr.CharacterAdded:Connect(function()
+		if espEnabled then
+			task.wait(1)
+			applyESP()
+		end
+	end)
+end)
+
+--========================--
+-- MOVEMENT
+--========================--
+local noclip = false
+RunService.Stepped:Connect(function()
+	if noclip and LocalPlayer.Character then
+		for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+MoveTab:AddToggle({
+	Name = "Noclip",
+	Default = false,
+	Callback = function(v)
+		noclip = v
+	end
+})
+
+local speedOn = false
+local jumpOn = false
+
+MoveTab:AddToggle({
+	Name = "Speed Boost",
+	Default = false,
+	Callback = function(v)
+		speedOn = v
+		if LocalPlayer.Character then
+			LocalPlayer.Character.Humanoid.WalkSpeed = v and 50 or 16
+		end
+	end
+})
+
+MoveTab:AddButton({
+	Name = "Reset Speed",
+	Callback = function()
+		if LocalPlayer.Character then
+			LocalPlayer.Character.Humanoid.WalkSpeed = 16
+		end
+	end
+})
+
+MoveTab:AddToggle({
+	Name = "Jump Boost",
+	Default = false,
+	Callback = function(v)
+		jumpOn = v
+		if LocalPlayer.Character then
+			LocalPlayer.Character.Humanoid.JumpPower = v and 100 or 50
+		end
+	end
+})
+
+MoveTab:AddButton({
+	Name = "Reset Jump",
+	Callback = function()
+		if LocalPlayer.Character then
+			LocalPlayer.Character.Humanoid.JumpPower = 50
+		end
+	end
+})
+
+--========================--
+-- TOOLS
+--========================--
+ToolsTab:AddButton({
+	Name = "Open DEX",
+	Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/infyiff/backup/main/dex.lua"))()
+	end
+})
+
+ToolsTab:AddButton({
+	Name = "Fly",
+	Callback = function()
+		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()
+	end
+})
+
+--========================--
+-- MISC
+--========================--
+MiscTab:AddButton({
+	Name = "Keyboard Script",
+	Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt", true))()
+	end
 })
 
 OrionLib:Init()

@@ -217,6 +217,13 @@ ToolsTab:AddButton({
 })
 
 ToolsTab:AddButton({
+	Name = "Tiger X V4",
+	Callback = function()
+		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Tiger-hub-x-v4-42180"))()
+	end
+})
+
+ToolsTab:AddButton({
 	Name = "Fly",
 	Callback = function()
 		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()

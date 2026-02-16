@@ -210,6 +210,13 @@ ToolsTab:AddButton({
 })
 
 ToolsTab:AddButton({
+	Name = "CoolKidd99(gui)",
+	Callback = function()
+		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-C00lkidd-Gui-111755"))()
+	end
+})
+
+ToolsTab:AddButton({
 	Name = "Fly",
 	Callback = function()
 		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()

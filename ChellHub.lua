@@ -240,4 +240,21 @@ MiscTab:AddButton({
 	end
 })
 
+ToolsTab:AddButton({
+	Name = "Fly",
+	Callback = function()
+		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Gui-Fly-v3-37111"))()
+	end
+})
+
+--========================--
+-- MISC
+--========================--
+MiscTab:AddButton({
+	Name = "HDR Grafik",
+	Callback = function()
+		loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-HDR-GRAPHICS-29409"))()
+	end
+})
+
 OrionLib:Init()
